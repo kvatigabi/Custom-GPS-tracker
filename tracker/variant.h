@@ -1,0 +1,4 @@
+#define PIN_SERIAL3_RX PB0
+#define PIN_SERIAL3_TX PB2
+#define PIN_SERIAL_RX PA10
+#define PIN_SERIAL_TX PA9
