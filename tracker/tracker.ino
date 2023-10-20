@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <BufferedPrint.h>
 #include <FreeStack.h>
 #include <MinimumSerial.h>
@@ -5,10 +6,8 @@
 #include <SdFat.h>
 #include <SdFatConfig.h>
 #include <sdios.h>
-
 #include <LiquidCrystal_I2C.h>
 #include <NMEAGPS.h>
-
 
 
 #define LED_B PB4
@@ -18,7 +17,7 @@
 bool isSdInitfailure = false;
 char DataFileName[15];
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
-HardwareSerial Serial3(PB0, PB2);
+HardwareSerial Serial3(PB0, PB2); //GPS comms.
 
 NMEAGPS gps;
 
@@ -34,21 +33,17 @@ void setup() {
   pinMode(BUTTON2, INPUT);
   pinMode(LED_R, OUTPUT);
   pinMode(LED_B, OUTPUT);
+  //default serial interface. we can assign directly the GPIOs.
   Serial.setRx(PA10);
   Serial.setTx(PA9);
+  //very important in order to make sure I2C of display works
   pinMode(PB6, OUTPUT_OPEN_DRAIN);
   pinMode(PB7, OUTPUT_OPEN_DRAIN);
-  //
-
-
-
-
-  //  lcd.init();
-  //  lcd.backlight();
+  
   Serial3.begin(9600);
-  //Serial.begin(9600);
-
-  if (!sd.begin(CS_PIN, SPI_HALF_SPEED)) {
+  
+  //Make sure SD cars works. No reason to continue without data colletion.
+  if (!sd.begin(CS_PIN, SPI_HALF_SPEED)) { //half speed for reliable connection.
     //Serial.println(F("SD ERR"));
     isSdInitfailure = true;
     while (isSdInitfailure) {
@@ -65,8 +60,6 @@ void setup() {
     }
   }
   //Serial.println("SD GOOD");
-
-  //    SPI.setClockDivider(SPI_CLOCK_DIV2);
 
 }
 
@@ -129,6 +122,8 @@ void GetPrintKmh() {
     lcd.print("Kmh");
   }
 }
+
+
 void sdErrStatusLed(unsigned long currentMillis) {
   static unsigned long previousMillis = 0;
   static int ledBlinkIntervalMs = 500;
